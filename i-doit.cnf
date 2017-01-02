@@ -1,0 +1,140 @@
+; configuration for php Xcache module
+
+[xcache-common]
+;; non-Windows example:
+extension = xcache.so
+;; Windows example:
+; extension = php_xcache.dll
+
+[xcache.admin]
+xcache.admin.enable_auth = On
+; Configure this to use admin pages
+; xcache.admin.user = "mOo"
+; xcache.admin.pass = md5($your_password)
+; xcache.admin.pass = ""
+
+[xcache]
+; ini only settings, all the values here is default unless explained
+
+; select low level shm implemenation
+xcache.shm_scheme =        "mmap"
+; to disable: xcache.size=0
+; to enable : xcache.size=64M etc (any size > 0) and your system mmap allows
+xcache.size  =               64M
+; set to cpu count (cat /proc/cpuinfo |grep -c processor)
+xcache.count =                 1
+; just a hash hints, you can always store count(items) > slots
+xcache.slots =                16K
+; ttl of the cache item, 0=forever
+xcache.ttl   =                 0
+; interval of gc scanning expired items, 0=no scan, other values is in seconds
+xcache.gc_interval =           0
+
+; same as aboves but for variable cache
+xcache.var_size  =            128M
+xcache.var_count =             1
+xcache.var_slots =            8K
+; default value for $ttl parameter of xcache_*() functions
+xcache.var_ttl   =             0
+; hard limit ttl that cannot be exceed by xcache_*() functions. 0=unlimited
+xcache.var_maxttl   =          0
+xcache.var_gc_interval =     300
+
+; mode:0, const string specified by xcache.var_namespace
+; mode:1, $_SERVER[xcache.var_namespace]
+; mode:2, uid or gid (specified by xcache.var_namespace)
+xcache.var_namespace_mode =    0
+xcache.var_namespace =        ""
+
+; N/A for /dev/zero
+xcache.readonly_protection = Off
+; for *nix, xcache.mmap_path is a file path, not directory. (auto create/overwrite)
+; Use something like "/tmp/xcache" instead of "/dev/*" if you want to turn on ReadonlyProtection
+; different process group of php won't share the same /tmp/xcache
+; for win32, xcache.mmap_path=anonymous map name, not file path
+xcache.mmap_path =    "/dev/zero"
+
+
+; Useful when XCache crash. leave it blank(disabled) or "/tmp/phpcore/" (writable by php)
+xcache.coredump_directory =   ""
+; Windows only. leave it as 0 (default) until you're told by XCache dev
+xcache.coredump_type =         0
+
+; disable cache after crash
+xcache.disable_on_crash =    Off
+
+; enable experimental documented features for each release if available
+xcache.experimental =        Off
+xcache.test = Off
+
+; per request settings. can ini_set, .htaccess etc
+xcache.cacher =               On
+xcache.stat   =               On
+xcache.optimizer =            On
+
+[xcache.coverager]
+; enabling this feature will impact performance
+; enabled only if xcache.coverager == On && xcache.coveragedump_directory == "non-empty-value"
+
+; per request settings. can ini_set, .htaccess etc
+; enable coverage data collecting and xcache_coverager_start/stop/get/clean() functions
+xcache.coverager =          Off
+xcache.coverager_autostart =  On
+
+; set in php ini file only
+; make sure it's readable (open_basedir is checked) by coverage viewer script
+xcache.coveragedump_directory = ""
+
+root@i-doit:~# cat /etc/apache2/sites-available/i-doit.conf
+cat: /etc/apache2/sites-available/i-doit.conf: No such file or directory
+root@i-doit:~# nano sudo nano /etc/apache2/sites-available/i-doit.conf
+root@i-doit:~# sudo  nano /etc/apache2/sites-available/i-doit.conf
+root@i-doit:~# sudo  nano /etc/apache2/sites-available/000-default.conf  
+root@i-doit:~# sudo  nano /etc/apache2/sites-available/           
+000-default.conf  default-ssl.conf  i-doit.conf       
+root@i-doit:~# sudo  nano /etc/apache2/sites-available/i-doit.conf 
+root@i-doit:~# cat /etc/mysql/conf.d/i-doit.cnf
+[mysqld]
+   
+# This is the number 1 setting to look at for any performance optimization
+# It is where the data and indexes are cached: having it as large as possible will
+# ensure MySQL uses memory and not disks for most read operations.
+#
+# Typical values are 1G (1-2GB RAM), 5-6G (8GB RAM), 20-25G (32GB RAM), 100-120G (128GB RAM).
+innodb_buffer_pool_size = 6G
+innodb_buffer_pool_instances = 1 # use multiple instances if you have
+                                 # innodb_buffer_pool_size > 10G, 1 every 4GB
+  
+# Redo log file size, the higher the better.
+# MySQL writes two of these log files in a default installation.
+innodb_log_file_size = 512M
+  
+innodb_sort_buffer_size = 64M
+sort_buffer_size = 262144 # default
+join_buffer_size = 262144 # default
+  
+max_allowed_packet = 128M
+max_heap_table_size = 16M
+query_cache_min_res_unit = 4096
+query_cache_type = 1
+query_cache_limit = 5M
+query_cache_size = 80M
+  
+tmp_table_size = 32M
+max_connections = 200
+innodb_file_per_table = 1
+  
+# disable this if you have only one to two CPU cores ( = 0), change it to 4 for a Quad Core.
+innodb_thread_concurrency = 0
+  
+# disable this if you have slow harddisks ( = 0)
+innodb_flush_log_at_trx_commit = 1
+innodb_flush_method = O_DIRECT
+  
+innodb_lru_scan_depth = 2048
+table_definition_cache = 1024
+table_open_cache = 2048
+#table_open_cache_instances = 4 # Only if your have MySQL 5.6 or higher, do not use with MariaDB!
+  
+sql-mode = ""
+
